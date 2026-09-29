@@ -1,0 +1,603 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #333;
+    background-color: #f7f8f4;
+    line-height: 1.6;
+}
+
+/* HEADER */
+
+header {
+    background-color: #3f6b45;
+    padding: 18px 24px;
+}
+
+header nav {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+header nav > a {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+#menu-btn {
+    position: absolute;
+    right: 0;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.8rem;
+    cursor: pointer;
+}
+
+#menu {
+    display: none;
+    position: absolute;
+    right: -30px;
+    top: 150%;
+    list-style: none;
+    margin: 0;
+    padding: 15px 20px;
+    background-color: #f2f2f2;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+#menu li {
+    margin-bottom: 8px;
+}
+
+#menu li a {
+    color: #3f6b45;
+    text-decoration: none;
+}
+
+#menu li a:hover {
+    color: #c97d3e;
+}
+
+/* React: el menú se muestra cuando tiene la clase "abierto" */
+#menu.abierto {
+    display: block;
+}
+
+/* React Router marca con "active" el link de la página actual */
+#menu li a.active {
+    color: #c97d3e;
+    font-weight: bold;
+}
+
+
+/* CONTENIDO PRINCIPAL */
+
+main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 40px 24px;
+}
+
+section {
+    margin-bottom: 55px;
+}
+
+
+/* TITULOS */
+
+h1 {
+    color: #3f6b45;
+    font-size: 2.4rem;
+    margin-bottom: 15px;
+}
+
+h2 {
+    color: #3f6b45;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #d9e2d4;
+    padding-bottom: 8px;
+    margin-bottom: 25px;
+}
+
+h3 {
+    color: #3f6b45;
+}
+
+
+/* PRIMERA SECCION */
+
+main > section:first-child {
+    background-color: #e8f0e3;
+    padding: 45px;
+    border-radius: 10px;
+    margin-top: 10px;
+}
+
+main > section:first-child p {
+    max-width: 650px;
+}
+
+#mapa-contacto {
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    display: block;
+}
+
+/* CONTACTO (dos columnas) */
+
+#contacto-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+#contacto-texto {
+    flex: 1;
+}
+
+#contacto-texto p {
+    margin: 6px 0;
+    font-size: 0.95rem;
+}
+
+#mapa-contacto {
+    flex: 1.4;
+    width: 100%;
+    height: 320px;
+    margin-top: 0;
+}
+
+
+/* HERO (Inicio) */
+
+#hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+#hero-texto {
+    flex: 1;
+}
+
+#hero img {
+    flex: 1;
+    max-width: 420px;
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    object-fit: cover;
+}
+
+
+/* SEGUNDA SECCION */
+
+main > section:nth-child(2) {
+    text-align: center;
+}
+
+
+/* BOTONES */
+
+section a {
+    display: inline-block;
+    background-color: #c97d3e;
+    color: white;
+    padding: 11px 22px;
+    border-radius: 6px;
+    text-decoration: none;
+    margin-top: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+section a:hover {
+    background-color: #a8622b;
+}
+
+
+/* SERVICIOS */
+
+main > section:nth-child(3) {
+    display: flex;
+    justify-content: space-between;
+    align-items: stretch;
+    flex-wrap: wrap;
+}
+
+main > section:nth-child(3) h2 {
+    width: 100%;
+    text-align: center;
+}
+
+main > section:nth-child(3) article {
+    text-align: left;
+    width: 31%;
+    margin: 0;
+}
+
+article {
+    background-color: #f2f2f2;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    padding: 20px;
+    margin-bottom: 16px;
+}
+
+article h3 {
+    margin-top: 0;
+}
+
+
+/* EQUIPO (Nosotros) */
+
+#equipo article {
+    width: 22%;
+    text-align: center;
+}
+
+.foto-equipo {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+
+/* FORMULARIOS (agenda y contacto) */
+
+#form-agenda,
+#form-contacto {
+    max-width: 480px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 35px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+#form-agenda div,
+#form-contacto div {
+    margin-bottom: 20px;
+}
+
+#form-agenda label,
+#form-contacto label {
+    display: block;
+    font-weight: bold;
+    color: #2e5033;
+    margin-bottom: 6px;
+}
+
+#form-agenda input,
+#form-agenda select,
+#form-agenda textarea,
+#form-contacto input,
+#form-contacto select,
+#form-contacto textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #c9d4c3;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+    background-color: #f7f8f4;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#form-agenda textarea,
+#form-contacto textarea {
+    min-height: 90px;
+    resize: vertical;
+}
+
+#form-agenda input:focus,
+#form-agenda select:focus,
+#form-agenda textarea:focus,
+#form-contacto input:focus,
+#form-contacto select:focus,
+#form-contacto textarea:focus {
+    outline: none;
+    border-color: #3f6b45;
+    box-shadow: 0 0 0 3px rgba(63, 107, 69, 0.15);
+    background-color: white;
+}
+
+#form-agenda input.input-error,
+#form-agenda select.input-error,
+#form-agenda textarea.input-error,
+#form-contacto input.input-error,
+#form-contacto select.input-error,
+#form-contacto textarea.input-error {
+    border-color: #c0392b;
+    background-color: #fdf1f0;
+}
+
+#form-agenda small.error,
+#form-contacto small.error {
+    display: block;
+    min-height: 18px;
+    color: #c0392b;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+#confirmacion-agenda,
+#confirmacion-contacto {
+    text-align: center;
+    font-weight: bold;
+    min-height: 24px;
+    margin-bottom: 10px;
+}
+
+#confirmacion-agenda.exito,
+#confirmacion-contacto.exito {
+    color: #2e5033;
+}
+
+#confirmacion-agenda.fallo,
+#confirmacion-contacto.fallo {
+    color: #c0392b;
+}
+
+#form-agenda button[type="submit"],
+#form-contacto button[type="submit"] {
+    background-color: #c97d3e;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-right: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    transition: background-color 0.2s;
+}
+
+#form-agenda button[type="submit"]:hover,
+#form-contacto button[type="submit"]:hover {
+    background-color: #a8622b;
+}
+
+#form-agenda .btn-limpiar,
+#form-contacto .btn-limpiar {
+    background-color: transparent;
+    color: #3f6b45;
+    border: 2px solid #3f6b45;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+#form-agenda .btn-limpiar:hover,
+#form-contacto .btn-limpiar:hover {
+    background-color: #3f6b45;
+    color: white;
+}
+
+
+/* ULTIMA SECCION */
+
+main > section:last-child {
+    background-color: #e8f0e3;
+    text-align: center;
+    padding: 35px 20px;
+    border-radius: 10px;
+}
+
+main > section:last-child p {
+    margin-bottom: 10px;
+}
+
+
+/* FOCO VISIBLE PARA NAVEGAR CON TECLADO */
+
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid #c97d3e;
+    outline-offset: 2px;
+}
+
+
+/* FOOTER */
+
+footer {
+    background-color: #2e5033;
+    color: white;
+    text-align: center;
+    padding: 25px;
+    margin-top: 40px;
+}
+
+footer p {
+    margin: 0;
+}
+
+footer nav {
+    margin-top: 10px;
+}
+
+footer nav a {
+    color: white;
+    margin: 0 10px;
+    text-decoration: none;
+}
+
+footer nav a:hover {
+    color: #e4efd9;
+}
+
+
+/* ADAPTACION PARA CELULAR */
+
+@media (max-width: 700px) {
+
+    header nav {
+        justify-content: center;
+    }
+
+    #menu-btn {
+        right: 5px;
+    }
+
+    main {
+        padding: 25px 18px;
+    }
+
+    main > section:first-child {
+        padding: 30px 20px;
+    }
+
+    #hero {
+        flex-direction: column;
+    }
+
+    #hero img {
+        max-width: 100%;
+        order: -1;
+    }
+
+    #contacto-hero {
+        flex-direction: column;
+    }
+
+    #mapa-contacto {
+        width: 100%;
+        height: 220px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    main > section:nth-child(3) article {
+        width: 100%;
+        margin: 0 0 16px 0;
+    }
+
+    #equipo article {
+        width: 100%;
+    }
+
+    #form-agenda,
+    #form-contacto {
+        padding: 25px 22px;
+    }
+}
+
+
+/* ===== LOGIN ===== */
+
+#form-login {
+    max-width: 400px;
+    margin: 0 auto;
+    background-color: #ffffff;
+    padding: 35px 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+#form-login div {
+    margin-bottom: 20px;
+}
+
+#form-login label {
+    display: block;
+    font-weight: bold;
+    color: #2e5033;
+    margin-bottom: 6px;
+}
+
+#form-login input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #c9d4c3;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 1rem;
+    background-color: #f7f8f4;
+}
+
+#form-login input:focus {
+    outline: none;
+    border-color: #3f6b45;
+    box-shadow: 0 0 0 3px rgba(63, 107, 69, 0.15);
+    background-color: white;
+}
+
+#form-login input.input-error {
+    border-color: #c0392b;
+    background-color: #fdf1f0;
+}
+
+#form-login small.error {
+    display: block;
+    min-height: 18px;
+    color: #c0392b;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+#mensaje-login {
+    text-align: center;
+    font-weight: bold;
+    color: #c0392b;
+    min-height: 24px;
+    margin-bottom: 10px;
+}
+
+#form-login button[type="submit"] {
+    width: 100%;
+    background-color: #c97d3e;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+#form-login button[type="submit"]:hover {
+    background-color: #a8622b;
+}
+
+/* Menú: separa "Ingresar/Panel" del resto y estiliza "Cerrar sesión" */
+
+#menu li.separador {
+    border-top: 1px solid #d9e2d4;
+    padding-top: 8px;
+}
+
+#menu .btn-salir {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: #c0392b;
+    cursor: pointer;
+}
+
+#menu .btn-salir:hover {
+    text-decoration: underline;
+}
