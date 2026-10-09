@@ -1,8 +1,11 @@
-import Tarjeta from "../components/molecules/Tarjeta.jsx";
+import ListaServicios from "../components/organisms/ListaServicios.jsx";
 import SeccionCta from "../components/organisms/SeccionCta.jsx";
-import { consultas, planes } from "../data/servicios.js";
+import { useServicios } from "../context/ServiciosContext.jsx";
 
 function Servicios() {
+    // El catálogo viene del context (que lo lee del service), no de un archivo escrito aquí.
+    const { servicios } = useServicios();
+
     return (
         <>
             <section>
@@ -13,18 +16,8 @@ function Servicios() {
                 </p>
             </section>
 
-            <section>
-                <h2>Consultas</h2>
-                {consultas.map((item) => (
-                    <Tarjeta key={item.id} titulo={item.titulo} descripcion={item.descripcion} />
-                ))}
-            </section>
-
-            <section>
-                <h2>Planes personalizados</h2>
-                {planes.map((item) => (
-                    <Tarjeta key={item.id} titulo={item.titulo} descripcion={item.descripcion} />
-                ))}
+            <section id="catalogo">
+                <ListaServicios servicios={servicios} />
             </section>
 
             <SeccionCta
@@ -36,3 +29,4 @@ function Servicios() {
 }
 
 export default Servicios;
+ 

@@ -4,6 +4,7 @@ import RutaProtegida from "./components/templates/RutaProtegida.jsx";
 import Inicio from "./pages/Inicio.jsx";
 import Nosotros from "./pages/Nosotros.jsx";
 import Servicios from "./pages/Servicios.jsx";
+import DetalleServicio from "./pages/DetalleServicio.jsx";
 import Agenda from "./pages/Agenda.jsx";
 import Contacto from "./pages/Contacto.jsx";
 import Login from "./pages/Login.jsx";
@@ -19,6 +20,7 @@ function App() {
                 <Route path="/" element={<Inicio />} />
                 <Route path="/nosotros" element={<Nosotros />} />
                 <Route path="/servicios" element={<Servicios />} />
+                <Route path="/servicios/:id" element={<DetalleServicio />} />
                 <Route path="/agenda" element={<Agenda />} />
                 <Route path="/contacto" element={<Contacto />} />
                 <Route path="/login" element={<Login />} />
@@ -40,3 +42,4 @@ function App() {
 }
 
 export default App;
+ 
