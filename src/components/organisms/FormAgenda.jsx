@@ -62,6 +62,7 @@ function FormAgenda() {
         setErrores(nuevosErrores);
 
         if (sinErrores(nuevosErrores)) {
+            
             setMensaje({ texto: "¡Solicitud enviada! Te contactaremos para confirmar tu hora.", exito: true });
             setFormulario(formularioVacio);
         } else {

@@ -13,11 +13,13 @@ function Login() {
     return (
         <>
             <section>
+
                 <h1>Acceso para el equipo</h1>
+
                 <p>
-                    Ingresa con tu correo y contraseña para administrar las
-                    horas agendadas de NutriVida.
-                </p>
+                    Ingresa con tus credenciales autorizadas para administrar agendas, 
+                    supervisar planes alimenticios y coordinar la atención de tus pacientes de manera eficiente
+                </p> 
             </section>
 
             <section>

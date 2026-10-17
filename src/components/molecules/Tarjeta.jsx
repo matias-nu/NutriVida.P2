@@ -12,7 +12,16 @@ function Tarjeta({ id, titulo, descripcion, precio, modalidad }) {
             <h3>{titulo}</h3>
             <p>{descripcion}</p>
             {(precio != null || id) && (
-                <div className="tarjeta-pie">
+                <div 
+                    className="tarjeta-pie" 
+                    style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        alignItems: 'center', 
+                        gap: '12px',
+                        marginTop: '16px' 
+                    }}
+                >
                     {precio != null && <Precio valor={precio} />}
                     {id && <Boton to={`/servicios/${id}`}>Ver detalle</Boton>}
                 </div>
@@ -21,5 +30,4 @@ function Tarjeta({ id, titulo, descripcion, precio, modalidad }) {
     );
 }
 
-export default Tarjeta;
- 
+export default Tarjeta; 
