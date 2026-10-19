@@ -59,4 +59,4 @@ describe("CitasContext", () => {
 
         expect(() => result.current.agendar({ ...datos, correo: "otro@correo.cl" })).toThrow("ya fue reservado");
     });
-})
+});

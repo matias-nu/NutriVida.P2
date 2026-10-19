@@ -71,7 +71,7 @@ describe("AuthContext", () => {
             primera.result.current.iniciarSesion("admin@nutrivida.cl", "admin123");
         });
 
-        // Un Provider nuevo (como al recargar la página) lee la sesión guardada
+        
         const recargada = usarAuth();
         expect(recargada.result.current.usuario.correo).toBe("admin@nutrivida.cl");
 

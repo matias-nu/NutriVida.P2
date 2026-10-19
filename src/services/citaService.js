@@ -28,9 +28,7 @@ export function obtenerCita(id) {
     return leer().find((cita) => cita.id === id) ?? null;
 }
 
-// CREATE: agenda una cita nueva. Lanza un Error con el motivo si no se puede:
-//  1) ese nutricionista ya tiene una cita a esa fecha y hora, o
-//  2) es una teleconsulta y el paciente no tuvo antes una consulta presencial.
+
 export function crearCita(datos) {
     const lista = leer();
     const correo = datos.correo.trim().toLowerCase();
