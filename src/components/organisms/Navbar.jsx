@@ -46,7 +46,11 @@ function Navbar() {
                     {/* Lo que se muestra depende de si hay sesión iniciada */}
                     {usuario ? (
                         <>
-                            <li className="separador"><NavLink to="/panel">Panel</NavLink></li>
+                            <li className="separador">
+                                {usuario.rol === "paciente"
+                                    ? <NavLink to="/mis-citas">Mis citas</NavLink>
+                                    : <NavLink to="/panel">Panel</NavLink>}
+                            </li>
                             <li>
                                 <button className="btn-salir" onClick={manejarCerrarSesion}>
                                     Cerrar sesión

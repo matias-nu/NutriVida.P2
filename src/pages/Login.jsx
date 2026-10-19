@@ -25,6 +25,8 @@ function Login() {
 
             <section>
                 <FormLogin />
+                <p>¿Eres paciente y aún no tienes cuenta?</p>
+                <Boton to="/registro">Crear cuenta</Boton>
             </section>
         </>
     );

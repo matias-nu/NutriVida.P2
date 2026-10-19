@@ -5,8 +5,6 @@ import { formatearFecha } from "../../utils/fechas.js";
 
 const estados = ["pendiente", "confirmada", "cancelada"];
 
-// Organismo: tabla del panel con todas las citas. Se puede cambiar el estado y eliminar.
-// Props: citas, onCambiarEstado (recibe id y estado nuevo) y onEliminar (recibe el id).
 function TablaCitas({ citas, onCambiarEstado, onEliminar }) {
     const [pendiente, setPendiente] = useState(null);
 

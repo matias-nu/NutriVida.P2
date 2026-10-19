@@ -3,7 +3,7 @@ import Boton from "../components/atoms/Boton.jsx";
 import ResumenCita from "../components/molecules/ResumenCita.jsx";
 import { useCitas } from "../context/CitasContext.jsx";
 
-// Pantalla de éxito: /agenda/confirmada/:id
+
 function CitaConfirmada() {
     const { id } = useParams();
     const { obtener } = useCitas();
