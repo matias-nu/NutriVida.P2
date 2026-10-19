@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { ServiciosProvider } from "./context/ServiciosContext.jsx";
+import { CitasProvider } from "./context/CitasContext.jsx";
 import App from "./App.jsx";
 import "./index.css";
 
@@ -11,7 +12,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <BrowserRouter>
             <AuthProvider>
                 <ServiciosProvider>
-                    <App />
+                    <CitasProvider>
+                        <App />
+                    </CitasProvider>
                 </ServiciosProvider>
             </AuthProvider>
         </BrowserRouter>

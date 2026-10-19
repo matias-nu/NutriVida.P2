@@ -1,14 +1,11 @@
 import { createContext, useContext, useState } from "react";
-import { usuarios } from "../data/usuarios.js";
+import { buscarPorCredenciales, registrarUsuario } from "../services/usuarioService.js";
 
-// El "contexto" es como una variable global de React:
-// cualquier componente puede saber si hay alguien con sesión iniciada,
-// sin tener que pasar props por todos lados.
 const AuthContext = createContext(null);
 
 const CLAVE_STORAGE = "nutrivida-usuario";
 
-// Lee el usuario guardado (para no perder la sesión al recargar la página)
+
 function leerUsuarioGuardado() {
     try {
         const guardado = localStorage.getItem(CLAVE_STORAGE);
@@ -21,21 +18,32 @@ function leerUsuarioGuardado() {
 export function AuthProvider({ children }) {
     const [usuario, setUsuario] = useState(leerUsuarioGuardado);
 
+    // Guarda la sesión (sin la contraseña) en el estado y en localStorage
+    function abrirSesion(datos) {
+        const { clave: _omitida, ...datosUsuario } = datos;
+        setUsuario(datosUsuario);
+        localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datosUsuario));
+    }
+
     // Devuelve true si el correo y la clave coinciden con algún usuario
     function iniciarSesion(correo, clave) {
-        const encontrado = usuarios.find(
-            (u) => u.correo === correo.trim().toLowerCase() && u.clave === clave
-        );
+        const encontrado = buscarPorCredenciales(correo, clave);
 
         if (!encontrado) {
             return false;
         }
-
-        // Guardamos todo menos la contraseña
-        const { clave: _omitida, ...datosUsuario } = encontrado;
-        setUsuario(datosUsuario);
-        localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datosUsuario));
+        abrirSesion(encontrado);
         return true;
+    }
+
+
+    function registrar(datos) {
+        try {
+            abrirSesion(registrarUsuario(datos));
+            return "";
+        } catch (error) {
+            return error.message;
+        }
     }
 
     function cerrarSesion() {
@@ -44,13 +52,12 @@ export function AuthProvider({ children }) {
     }
 
     return (
-        <AuthContext.Provider value={{ usuario, iniciarSesion, cerrarSesion }}>
+        <AuthContext.Provider value={{ usuario, iniciarSesion, registrar, cerrarSesion }}>
             {children}
         </AuthContext.Provider>
     );
 }
 
-// Atajo para usar el contexto: const { usuario } = useAuth();
 export function useAuth() {
     return useContext(AuthContext);
 }

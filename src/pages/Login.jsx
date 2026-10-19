@@ -1,6 +1,7 @@
 import { Navigate } from "react-router-dom";
 import FormLogin from "../components/organisms/FormLogin.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import Boton from "../components/atoms/Boton.jsx";
 
 function Login() {
     const { usuario } = useAuth();
