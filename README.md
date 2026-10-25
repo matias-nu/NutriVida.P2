@@ -1,3 +1,52 @@
+NutriVida - Aplicacion Web para Clinica Nutricional
+
+Sistema web desarrollado con React y Vite para la gestión y consulta de servicios nutricionales, agendamiento de citas y acceso administrativo
+
+---
+
+Integrantes del Equipo
+
+MATIAS LAZO NUNEZ
+ESTEBAN ALONSO TOLOZA ARANEDA
+ABRAHAM BECERRA MUNOZ
+
+DOCENTE: MICHAEL BYRON CATALAN TEJO
+Fecha: 24 Octubre 2026
+---
+
+Tecnologías Utilizadas
+
+Frontend: React 19, Vite
+Estilos & UI: Bootstrap 5, React Bootstrap
+Enrutamiento: React Router DOM v7
+Arquitectura de Diseño: Atomic Design (atomos, Moléculas, Organismos, Páginas)
+Testing & Cobertura: Vitest, Testing Library React, JSDOM, Coverage V8
+Control de Versiones: Git & GitHub
+
+---
+
+Instalación y Configuración
+
+1. Clonar el repositorio:
+   ```bash
+   git clone https://github.com/matias-nu/NutriVida.P2.git
+
+---
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
