@@ -44,7 +44,7 @@ export async function crearCita(datos) {
         })
     });
 
-    return respuesta.cita || respuesta;
+    return adaptarCita(respuesta.cita || respuesta);
 }
 
 export async function actualizarCita(id, cambios) {
