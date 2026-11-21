@@ -15,7 +15,7 @@ export async function peticion(ruta, opciones = {}) {
     const datos = await respuesta.json().catch(() => ({}));
 
     if (!respuesta.ok) {
-        throw new Error(datos.error || `Error HTTP ${respuesta.status}`);
+        throw new Error(datos.mensaje || datos.error || `Error HTTP ${respuesta.status}`);
     }
 
     return datos;
