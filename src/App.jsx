@@ -50,7 +50,7 @@ function App() {
                 <Route
                     path="/panel"
                     element={
-                        <RutaProtegida roles={["admin", "secretaria"]}>
+                        <RutaProtegida roles={["admin", "nutricionista"]}>
                             <PlantillaAdmin />
                         </RutaProtegida>
                     }

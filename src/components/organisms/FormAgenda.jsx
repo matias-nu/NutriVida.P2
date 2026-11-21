@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CampoFormulario from "../molecules/CampoFormulario.jsx";
 import SelectorHorario from "../molecules/SelectorHorario.jsx";
 import ResumenCita from "../molecules/ResumenCita.jsx";
 import MensajeError from "../atoms/MensajeError.jsx";
 import Boton from "../atoms/Boton.jsx";
-import { equipo } from "../../data/equipo.js";
+import { listarNutricionistas, consultarHorarios } from "../../services/nutricionistaService.js";
 import { useServicios } from "../../context/ServiciosContext.jsx";
 import { useCitas } from "../../context/CitasContext.jsx";
 import { useAuth } from "../../context/AuthContext.jsx";
@@ -45,8 +45,58 @@ function FormAgenda() {
         nombre: paciente?.nombre ?? "",
         correo: paciente?.correo ?? "",
     });
+
+    const [nutricionistas, setNutricionistas] = useState([]);
+    const [errorProfesionales, setErrorProfesionales] = useState("");
+
+    const [horariosDisponiblesAPI, setHorariosDisponiblesAPI] = useState([]);
+    const [cargandoHorarios, setCargandoHorarios] = useState(false);
+    const [errorHorarios, setErrorHorarios] = useState("");
+
+    useEffect(() => {
+        if (!formulario.nutricionistaId || !formulario.fecha) {
+            setHorariosDisponiblesAPI([]);
+            setErrorHorarios("");
+            return;
+        }
+
+        let activo = true;
+
+        setCargandoHorarios(true);
+        setHorariosDisponiblesAPI([]);
+        setErrorHorarios("");
+
+        consultarHorarios(formulario.nutricionistaId, formulario.fecha)
+            .then(horarios => {
+                if (activo) {
+                    setHorariosDisponiblesAPI(horarios);
+                }
+            })
+            .catch(error => {
+                if (activo) {
+                    setErrorHorarios(error.message);
+                }
+            })
+            .finally(() => {
+                if (activo) {
+                    setCargandoHorarios(false);
+                }
+            });
+
+        return () => {
+            activo = false;
+        };
+    }, [formulario.nutricionistaId, formulario.fecha]);
+
+
+    useEffect(() => {
+        listarNutricionistas()
+            .then(setNutricionistas)
+            .catch(error => setErrorProfesionales(error.message));
+    }, []);
     const [errores, setErrores] = useState({});
     const [paso, setPaso] = useState("formulario");
+    const [confirmando, setConfirmando] = useState(false);
 
     function manejarCambio(evento) {
         const { name, value } = evento.target;
@@ -59,9 +109,6 @@ function FormAgenda() {
         let errorFecha = validarRequerido(datos.fecha, "Selecciona una fecha.");
         if (!errorFecha && datos.fecha < fechaHoy()) {
             errorFecha = "La fecha no puede ser anterior a hoy.";
-        }
-        if (!errorFecha && datos.nutricionistaId && !atiendeEseDia(datos.nutricionistaId, datos.fecha)) {
-            errorFecha = "Ese profesional no atiende el día elegido. Prueba con otra fecha.";
         }
 
         return {
@@ -76,21 +123,45 @@ function FormAgenda() {
         };
     }
 
-    // Paso 1 -> 2: si todo está bien, se muestra el resumen
-    function manejarEnvio(evento) {
+    // Comprobar disponibilidad antes de mostrar el resumen.
+    async function manejarEnvio(evento) {
         evento.preventDefault();
+
         const nuevosErrores = validar(formulario);
         setErrores(nuevosErrores);
 
-        if (sinErrores(nuevosErrores)) {
+        if (!sinErrores(nuevosErrores)) return;
+
+        setCargandoHorarios(true);
+
+        try {
+            const disponibles = await consultarHorarios(
+                formulario.nutricionistaId,
+                formulario.fecha
+            );
+
+            setHorariosDisponiblesAPI(disponibles);
+
+            if (!disponibles.includes(formulario.horario)) {
+                setErrores({
+                    horario: "Ese horario ya no está disponible. Selecciona otro."
+                });
+                setFormulario(actual => ({ ...actual, horario: "" }));
+                return;
+            }
+
             setPaso("resumen");
+        } catch (error) {
+            setErrores({ general: error.message });
+        } finally {
+            setCargandoHorarios(false);
         }
     }
 
     // Junta los datos del formulario con los del servicio y el nutricionista elegidos
     function armarCita() {
-        const servicio = servicios.find((s) => s.id === formulario.servicioId);
-        const nutricionista = equipo.find((p) => p.id === formulario.nutricionistaId);
+        const servicio = servicios.find((s) => String(s.id) === String(formulario.servicioId));
+        const nutricionista = nutricionistas.find((p) => String(p.id) === String(formulario.nutricionistaId));
 
         return {
             servicioId: servicio.id,
@@ -111,14 +182,48 @@ function FormAgenda() {
 
     // Paso 2: confirmar. Si el service rechaza la cita (hora tomada, regla de la
     // teleconsulta), se muestra la pantalla de error con el motivo.
-    function manejarConfirmacion(evento) {
+    async function manejarConfirmacion(evento) {
         evento.preventDefault();
 
+        if (!usuario) {
+            navegar("/login");
+            return;
+        }
+
+        if (usuario.rol !== "paciente") {
+            setErrores({
+                general: "Solo los pacientes pueden reservar citas."
+            });
+            setPaso("formulario");
+            return;
+        }
+
+        setConfirmando(true);
+
         try {
-            const nueva = agendar(armarCita());
+            const disponibles = await consultarHorarios(
+                formulario.nutricionistaId,
+                formulario.fecha
+            );
+
+            if (!disponibles.includes(formulario.horario)) {
+                setPaso("formulario");
+                setFormulario(actual => ({ ...actual, horario: "" }));
+                setHorariosDisponiblesAPI(disponibles);
+                setErrores({
+                    horario: "Ese horario acaba de ocuparse. Elige otro."
+                });
+                return;
+            }
+
+            const nueva = await agendar(armarCita());
             navegar(`/agenda/confirmada/${nueva.id}`);
         } catch (error) {
-            navegar("/agenda/error", { state: { motivo: error.message } });
+            navegar("/agenda/error", {
+                state: { motivo: error.message }
+            });
+        } finally {
+            setConfirmando(false);
         }
     }
 
@@ -132,7 +237,10 @@ function FormAgenda() {
             <form id="form-agenda" onSubmit={manejarConfirmacion}>
                 <h2>Revisa tu cita</h2>
                 <ResumenCita cita={armarCita()} />
-                <Boton tipo="submit">Confirmar cita</Boton>
+                {confirmando && <p>Registrando tu cita...</p>}
+            <Boton tipo="submit">
+                {confirmando ? "Guardando..." : "Confirmar cita"}
+            </Boton>
                 <Boton className="btn-limpiar" onClick={() => setPaso("formulario")}>Volver a editar</Boton>
             </form>
         );
@@ -145,13 +253,15 @@ function FormAgenda() {
 
     const opcionesNutricionista = [
         { valor: "", texto: "Selecciona un profesional" },
-        ...equipo.map((persona) => ({ valor: persona.id, texto: persona.nombre })),
+        ...nutricionistas.map((persona) => ({ valor: String(persona.id), texto: persona.nombre })),
     ];
 
-    const horas = horasDisponibles(formulario.nutricionistaId, formulario.fecha, citas);
+    const horas = horariosDisponiblesAPI;
 
     return (
         <form id="form-agenda" onSubmit={manejarEnvio} noValidate>
+            {errores.general && <p role="alert">{errores.general}</p>}
+            {errorProfesionales && <p role="alert">{errorProfesionales}</p>}
             <CampoFormulario id="servicioId" etiqueta="Servicio" tipo="select" opciones={opcionesServicio}
                 valor={formulario.servicioId} error={errores.servicioId} onChange={manejarCambio} />
 

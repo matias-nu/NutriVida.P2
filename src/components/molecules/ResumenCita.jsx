@@ -14,13 +14,31 @@ function ResumenCita({ cita }) {
             <dd>{formatearFecha(cita.fecha)} a las {cita.hora}</dd>
 
             <dt>Paciente</dt>
-            <dd>{cita.nombre} ({cita.correo})</dd>
+            <dd>
+                {cita.nombre}
+                {cita.correo ? ` (${cita.correo})` : ""}
+            </dd>
 
-            <dt>Teléfono</dt>
-            <dd>{cita.telefono}</dd>
+            {cita.telefono && (
+                <>
+                    <dt>Teléfono</dt>
+                    <dd>{cita.telefono}</dd>
+                </>
+            )}
 
-            <dt>Valor</dt>
-            <dd><Precio valor={cita.precio} /></dd>
+            {cita.precio != null && (
+                <>
+                    <dt>Valor</dt>
+                    <dd><Precio valor={cita.precio} /></dd>
+                </>
+            )}
+
+            {cita.estado && (
+                <>
+                    <dt>Estado</dt>
+                    <dd>{cita.estado}</dd>
+                </>
+            )}
         </dl>
     );
 }

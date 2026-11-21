@@ -18,14 +18,14 @@ function FormLogin() {
     const ubicacion = useLocation();
 
     // Si llegó aquí porque intentó entrar a una página protegida, lo devolvemos allá
-    const destino = ubicacion.state?.desde || "/panel";
+    const destino = ubicacion.state?.desde || "/";
 
     function manejarCambio(evento) {
         const { name, value } = evento.target;
         setFormulario({ ...formulario, [name]: value });
     }
 
-    function manejarEnvio(evento) {
+    async function manejarEnvio(evento) {
         evento.preventDefault();
 
         const nuevosErrores = {
@@ -39,7 +39,7 @@ function FormLogin() {
             return;
         }
 
-        const correcto = iniciarSesion(formulario.correo, formulario.clave);
+        const correcto = await iniciarSesion(formulario.correo, formulario.clave);
 
         if (correcto) {
             navegar(destino, { replace: true });

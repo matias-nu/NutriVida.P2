@@ -1,54 +1,99 @@
-import { createContext, useContext, useState } from "react";
-import * as citaService from "../services/citaService.js";
+import {
+    createContext,
+    useContext,
+    useCallback,
+    useEffect,
+    useState
+} from "react";
 
-// Contexto de citas: el agendamiento, "Mis citas" y el panel de administración
-// leen la misma lista, así siempre muestran lo mismo.
+import * as citaService from "../services/citaService.js";
+import { useAuth } from "./AuthContext.jsx";
+
 const CitasContext = createContext(null);
 
 export function CitasProvider({ children }) {
-    const [citas, setCitas] = useState(() => citaService.listarCitas());
+    const { usuario } = useAuth();
 
-    function recargar() {
-        setCitas(citaService.listarCitas());
-    }
+    const [citas, setCitas] = useState([]);
+    const [cargando, setCargando] = useState(false);
+    const [error, setError] = useState("");
 
-    // Si la cita no se puede agendar, el service lanza un Error y el que llamó lo atrapa.
-    function agendar(datos) {
-        const nueva = citaService.crearCita(datos);
+    const recargar = useCallback(async () => {
+        if (!usuario) {
+            setCitas([]);
+            setError("");
+            return;
+        }
+
+        setCargando(true);
+
+        try {
+            const datos = await citaService.listarCitas();
+            setCitas(datos);
+            setError("");
+        } catch (error) {
+            setError(error.message);
+            setCitas([]);
+        } finally {
+            setCargando(false);
+        }
+    }, [usuario]);
+
+    useEffect(() => {
         recargar();
+    }, [recargar]);
+
+    async function agendar(datos) {
+        const nueva = await citaService.crearCita(datos);
+        await recargar();
         return nueva;
     }
 
-    function actualizar(id, cambios) {
-        citaService.actualizarCita(id, cambios);
-        recargar();
+    async function actualizar(id, cambios) {
+        const respuesta = await citaService.actualizarCita(id, cambios);
+        await recargar();
+        return respuesta;
     }
 
-    function eliminar(id) {
-        citaService.eliminarCita(id);
-        recargar();
+    async function eliminar(id) {
+        const respuesta = await citaService.eliminarCita(id);
+        await recargar();
+        return respuesta;
     }
 
     function obtener(id) {
-        return citas.find((cita) => cita.id === id) ?? null;
+        return citas.find(cita => cita.id === Number(id)) ?? null;
     }
 
-    function citasDe(correo) {
-        return citas.filter((cita) => cita.correo === correo.trim().toLowerCase());
+    function citasDe() {
+        return citas;
     }
 
     return (
-        <CitasContext.Provider value={{ citas, agendar, actualizar, eliminar, obtener, citasDe }}>
+        <CitasContext.Provider
+            value={{
+                citas,
+                cargando,
+                error,
+                recargar,
+                agendar,
+                actualizar,
+                eliminar,
+                obtener,
+                citasDe
+            }}
+        >
             {children}
         </CitasContext.Provider>
     );
 }
 
-// Atajo: const { citas, agendar } = useCitas();
 export function useCitas() {
     const contexto = useContext(CitasContext);
+
     if (!contexto) {
-        throw new Error("useCitas debe usarse dentro de un CitasProvider");
+        throw new Error("useCitas debe usarse dentro de CitasProvider");
     }
+
     return contexto;
 }

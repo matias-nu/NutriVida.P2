@@ -1,72 +1,71 @@
-// citaService: CRUD de las citas agendadas. JavaScript puro, guarda en localStorage.
-import { validarTeleconsulta } from "../utils/reglasCitas.js";
+import { peticion } from "./api.js";
 
-const CLAVE = "nutrivida-citas";
+const estados = {
+    Pendiente: "pendiente",
+    Confirmada: "confirmada",
+    Cancelada: "cancelada",
+    Completada: "completada"
+};
 
-function leer() {
-    const guardado = localStorage.getItem(CLAVE);
-    return guardado === null ? [] : JSON.parse(guardado);
-}
+function adaptarCita(cita) {
+    const fechaHora = String(cita.fecha_hora || "");
+    const fecha = fechaHora.slice(0, 10);
+    const hora = fechaHora.slice(11, 16);
 
-function guardar(lista) {
-    localStorage.setItem(CLAVE, JSON.stringify(lista));
-}
-
-// READ: todas las citas.
-export function listarCitas() {
-    return leer();
-}
-
-// READ: las citas de un paciente (se identifica por su correo).
-export function listarCitasDe(correo) {
-    const buscado = correo.trim().toLowerCase();
-    return leer().filter((cita) => cita.correo === buscado);
-}
-
-// READ: una cita por su id (o null).
-export function obtenerCita(id) {
-    return leer().find((cita) => cita.id === id) ?? null;
-}
-
-
-export function crearCita(datos) {
-    const lista = leer();
-    const correo = datos.correo.trim().toLowerCase();
-
-    const horaOcupada = lista.some(
-        (cita) =>
-            cita.nutricionistaId === datos.nutricionistaId &&
-            cita.fecha === datos.fecha &&
-            cita.hora === datos.hora &&
-            cita.estado !== "cancelada"
-    );
-    if (horaOcupada) {
-        throw new Error("Ese horario ya fue reservado por otro paciente.");
-    }
-
-    const errorRegla = validarTeleconsulta(datos, listarCitasDe(correo));
-    if (errorRegla) {
-        throw new Error(errorRegla);
-    }
-
-    const nueva = {
-        ...datos,
-        correo,
-        id: Math.max(0, ...lista.map((cita) => cita.id)) + 1,
-        estado: "pendiente",
+    return {
+        ...cita,
+        id: Number(cita.id),
+        servicioId: String(cita.servicio_id),
+        nutricionistaId: String(cita.nutricionista_id),
+        servicio: cita.servicio || "",
+        nutricionista: cita.nutricionista || "",
+        nombre: cita.paciente || "",
+        correo: cita.correo || "",
+        fecha,
+        hora,
+        motivo: cita.observaciones || "",
+        estado: estados[cita.estado] || "pendiente"
     };
-    guardar([...lista, nueva]);
-    return nueva;
 }
 
-// UPDATE: cambia solo los campos indicados (ej: el estado). El id no cambia.
-export function actualizarCita(id, cambios) {
-    const lista = leer().map((cita) => (cita.id === id ? { ...cita, ...cambios, id } : cita));
-    guardar(lista);
-    return lista.find((cita) => cita.id === id) ?? null;
+export async function listarCitas() {
+    const datos = await peticion("/citas");
+    return datos.map(adaptarCita);
 }
 
-// DELETE: quita la cita con ese id.
-export function eliminarCita(id) {
-    guardar(leer().filter((cita) => cita.id !== id));
+export async function crearCita(datos) {
+    const respuesta = await peticion("/citas", {
+        method: "POST",
+        body: JSON.stringify({
+            servicio_id: Number(datos.servicioId),
+            nutricionista_id: Number(datos.nutricionistaId),
+            fecha_hora: `${datos.fecha}T${datos.hora}:00`,
+            observaciones: datos.motivo || ""
+        })
+    });
+
+    return respuesta.cita;
+}
+
+export async function actualizarCita(id, cambios) {
+    const nombres = {
+        confirmada: "Confirmada",
+        cancelada: "Cancelada",
+        completada: "Completada"
+    };
+
+    const estado = nombres[cambios.estado];
+
+    if (!estado) {
+        throw new Error("Estado de cita no permitido");
+    }
+
+    return peticion(`/citas/${id}/estado`, {
+        method: "PATCH",
+        body: JSON.stringify({ estado })
+    });
+}
+
+export async function eliminarCita(id) {
+    return actualizarCita(id, { estado: "cancelada" });
 }

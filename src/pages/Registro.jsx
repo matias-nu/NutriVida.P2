@@ -8,7 +8,7 @@ function Registro() {
 
     // Si ya tiene sesión, no tiene sentido mostrarle el registro
     if (usuario) {
-        return <Navigate to="/panel" replace />;
+        return <Navigate to={usuario.rol === "paciente" ? "/mis-citas" : "/panel"} replace />;
     }
 
     return (
