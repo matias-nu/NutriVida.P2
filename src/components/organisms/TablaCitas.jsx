@@ -1,13 +1,10 @@
-import { useState } from "react";
 import Boton from "../atoms/Boton.jsx";
 import EtiquetaEstadoCita from "../atoms/EtiquetaEstadoCita.jsx";
 import { formatearFecha } from "../../utils/fechas.js";
 
-const estados = ["pendiente", "confirmada", "cancelada"];
+const estados = ["confirmada", "cancelada", "completada"];
 
 function TablaCitas({ citas, onCambiarEstado, onEliminar }) {
-    const [pendiente, setPendiente] = useState(null);
-
     if (citas.length === 0) {
         return <p className="sin-resultados">Todavía no hay citas registradas.</p>;
     }
@@ -25,37 +22,58 @@ function TablaCitas({ citas, onCambiarEstado, onEliminar }) {
                 </tr>
             </thead>
             <tbody>
-                {citas.map((cita) => (
-                    <tr key={cita.id}>
-                        <td>{cita.nombre}<br /><small>{cita.correo}</small></td>
-                        <td>{cita.servicio}</td>
-                        <td>{cita.nutricionista}</td>
-                        <td>{formatearFecha(cita.fecha)} {cita.hora}</td>
-                        <td>
-                            <EtiquetaEstadoCita estado={cita.estado} />
-                            <select
-                                aria-label={`Estado de la cita de ${cita.nombre}`}
-                                value={cita.estado}
-                                onChange={(evento) => onCambiarEstado(cita.id, evento.target.value)}
-                            >
-                                {estados.map((estado) => (
-                                    <option key={estado} value={estado}>{estado}</option>
-                                ))}
-                            </select>
-                        </td>
-                        <td>
-                            {pendiente === cita.id ? (
-                                <>
-                                    <span>¿Eliminar?</span>
-                                    <Boton onClick={() => { onEliminar(cita.id); setPendiente(null); }}>Sí</Boton>
-                                    <Boton onClick={() => setPendiente(null)}>No</Boton>
-                                </>
-                            ) : (
-                                <Boton onClick={() => setPendiente(cita.id)}>Eliminar</Boton>
-                            )}
-                        </td>
-                    </tr>
-                ))}
+                {citas.map(cita => {
+                    const finalizada = ["cancelada", "completada"].includes(cita.estado);
+
+                    return (
+                        <tr key={cita.id}>
+                            <td>
+                                {cita.nombre}
+                                <br />
+                                <small>{cita.correo}</small>
+                            </td>
+                            <td>{cita.servicio}</td>
+                            <td>{cita.nutricionista}</td>
+                            <td>{formatearFecha(cita.fecha)} {cita.hora}</td>
+                            <td>
+                                <EtiquetaEstadoCita estado={cita.estado} />
+                            </td>
+                            <td>
+                                {finalizada ? (
+                                    <span>Sin acciones disponibles</span>
+                                ) : (
+                                    <>
+                                        <select
+                                            aria-label={`Cambiar estado de la cita ${cita.id}`}
+                                            defaultValue=""
+                                            onChange={evento => {
+                                                const estado = evento.target.value;
+                                                if (estado) onCambiarEstado(cita.id, estado);
+                                                evento.target.value = "";
+                                            }}
+                                        >
+                                            <option value="">Cambiar estado</option>
+                                            {estados
+                                                .filter(estado => estado !== cita.estado)
+                                                .map(estado => (
+                                                    <option key={estado} value={estado}>
+                                                        {estado}
+                                                    </option>
+                                                ))}
+                                        </select>
+                                        <Boton onClick={() => {
+                                            if (window.confirm("¿Cancelar esta cita?")) {
+                                                onEliminar(cita.id);
+                                            }
+                                        }}>
+                                            Cancelar
+                                        </Boton>
+                                    </>
+                                )}
+                            </td>
+                        </tr>
+                    );
+                })}
             </tbody>
         </table>
     );

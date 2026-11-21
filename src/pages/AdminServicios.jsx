@@ -4,33 +4,71 @@ import FormServicio from "../components/organisms/FormServicio.jsx";
 import Boton from "../components/atoms/Boton.jsx";
 import { useServicios } from "../context/ServiciosContext.jsx";
 
-
 function AdminServicios() {
-    const { servicios, crear, actualizar, eliminar } = useServicios();
+    const {
+        servicios,
+        cargando,
+        error,
+        crear,
+        actualizar,
+        eliminar
+    } = useServicios();
 
     const [formulario, setFormulario] = useState(null);
     const [aviso, setAviso] = useState("");
+    const [procesando, setProcesando] = useState(false);
 
-    function guardar(datos) {
-        if (formulario === "nuevo") {
-            crear(datos);
-            setAviso(`Servicio "${datos.titulo}" creado.`);
-        } else {
-            actualizar(formulario.id, datos);
-            setAviso(`Servicio "${datos.titulo}" actualizado.`);
+    async function guardar(datos) {
+        if (procesando) return;
+
+        setProcesando(true);
+        setAviso("");
+
+        try {
+            if (formulario === "nuevo") {
+                await crear(datos);
+                setAviso(`Servicio "${datos.titulo}" creado correctamente.`);
+            } else {
+                await actualizar(formulario.id, datos);
+                setAviso(`Servicio "${datos.titulo}" actualizado correctamente.`);
+            }
+
+            setFormulario(null);
+        } catch (error) {
+            setAviso(`Error: ${error.message}`);
+        } finally {
+            setProcesando(false);
         }
-        setFormulario(null);
     }
 
-    function borrar(id) {
-        eliminar(id);
-        setAviso("Servicio eliminado.");
+    async function borrar(id) {
+        if (procesando) return;
+
+        if (!window.confirm("¿Seguro que deseas desactivar este servicio?")) {
+            return;
+        }
+
+        setProcesando(true);
+        setAviso("");
+
+        try {
+            await eliminar(id);
+            setAviso("Servicio desactivado correctamente.");
+        } catch (error) {
+            setAviso(`Error: ${error.message}`);
+        } finally {
+            setProcesando(false);
+        }
     }
 
     return (
         <>
-            <h1>Servicios</h1>
-            <p role="status" className="aviso-admin">{aviso}</p>
+            <h1>Administración de servicios</h1>
+
+            {cargando && <p>Cargando servicios...</p>}
+            {error && <p role="alert">Error al cargar: {error}</p>}
+            {aviso && <p role="status" className="aviso-admin">{aviso}</p>}
+            {procesando && <p>Guardando cambios...</p>}
 
             {formulario ? (
                 <FormServicio
@@ -41,10 +79,21 @@ function AdminServicios() {
                 />
             ) : (
                 <>
-                    <Boton onClick={() => { setAviso(""); setFormulario("nuevo"); }}>Nuevo servicio</Boton>
+                    <Boton
+                        onClick={() => {
+                            setAviso("");
+                            setFormulario("nuevo");
+                        }}
+                    >
+                        Nuevo servicio
+                    </Boton>
+
                     <TablaServicios
                         servicios={servicios}
-                        onEditar={(servicio) => { setAviso(""); setFormulario(servicio); }}
+                        onEditar={(servicio) => {
+                            setAviso("");
+                            setFormulario(servicio);
+                        }}
                         onEliminar={borrar}
                     />
                 </>

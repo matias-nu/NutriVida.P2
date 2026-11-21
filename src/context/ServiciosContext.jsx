@@ -1,54 +1,80 @@
-import { createContext, useContext, useState } from "react";
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useState
+} from "react";
+
 import * as servicioService from "../services/servicioService.js";
 
-// Contexto: una "caja compartida" con el catálogo. Cualquier componente puede abrirla
-// y todos ven la misma lista, sin pasar props de uno en uno.
 const ServiciosContext = createContext(null);
 
 export function ServiciosProvider({ children }) {
-    // La función () => ... hace que el catálogo se lea del service solo la primera vez.
-    const [servicios, setServicios] = useState(() => servicioService.listarServicios());
+    const [servicios, setServicios] = useState([]);
+    const [cargando, setCargando] = useState(true);
+    const [error, setError] = useState("");
 
-    // Cada función: 1) pide el cambio al service (que lo guarda) y 2) vuelve a leer la lista.
-    // Al cambiar el estado, React redibuja y todas las pantallas muestran la lista nueva.
-    function recargar() {
-        setServicios(servicioService.listarServicios());
+    async function recargar() {
+        try {
+            setError("");
+            const datos = await servicioService.listarServicios();
+            setServicios(datos);
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setCargando(false);
+        }
     }
 
-    function crear(datos) {
-        const nuevo = servicioService.crearServicio(datos);
+    useEffect(() => {
         recargar();
+    }, []);
+
+    async function crear(datos) {
+        const nuevo = await servicioService.crearServicio(datos);
+        await recargar();
         return nuevo;
     }
 
-    function actualizar(id, cambios) {
-        const actualizado = servicioService.actualizarServicio(id, cambios);
-        recargar();
+    async function actualizar(id, cambios) {
+        const actualizado = await servicioService.actualizarServicio(id, cambios);
+        await recargar();
         return actualizado;
     }
 
-    function eliminar(id) {
-        servicioService.eliminarServicio(id);
-        recargar();
+    async function eliminar(id) {
+        await servicioService.eliminarServicio(id);
+        await recargar();
     }
 
-    // Busca un servicio en la lista que ya está en memoria (la usa la página de detalle).
     function obtener(id) {
-        return servicios.find((servicio) => servicio.id === id) ?? null;
+        return servicios.find(s => s.id === String(id)) ?? null;
     }
 
     return (
-        <ServiciosContext.Provider value={{ servicios, crear, actualizar, eliminar, obtener }}>
+        <ServiciosContext.Provider
+            value={{
+                servicios,
+                cargando,
+                error,
+                crear,
+                actualizar,
+                eliminar,
+                obtener,
+                recargar
+            }}
+        >
             {children}
         </ServiciosContext.Provider>
     );
 }
 
-// Atajo para usar el contexto: const { servicios, crear } = useServicios();
 export function useServicios() {
     const contexto = useContext(ServiciosContext);
+
     if (!contexto) {
-        throw new Error("useServicios debe usarse dentro de un ServiciosProvider");
+        throw new Error("useServicios debe usarse dentro de ServiciosProvider");
     }
+
     return contexto;
 }

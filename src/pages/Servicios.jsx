@@ -4,7 +4,7 @@ import { useServicios } from "../context/ServiciosContext.jsx";
 
 function Servicios() {
     // El catálogo viene del context (que lo lee del service), no de un archivo escrito aquí.
-    const { servicios } = useServicios();
+    const { servicios, cargando, error } = useServicios();
 
     return (
         <>
@@ -17,7 +17,9 @@ function Servicios() {
             </section>
 
             <section id="catalogo">
-                <ListaServicios servicios={servicios} />
+                {cargando && <p>Cargando servicios...</p>}
+                {error && <p role="alert">Error: {error}</p>}
+                {!cargando && !error && <ListaServicios servicios={servicios} />}
             </section>
 
             <SeccionCta

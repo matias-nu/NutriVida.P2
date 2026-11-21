@@ -28,7 +28,7 @@ function FormRegistro() {
         setFormulario({ ...formulario, [name]: value });
     }
 
-    function manejarEnvio(evento) {
+    async function manejarEnvio(evento) {
         evento.preventDefault();
 
         const nuevosErrores = {
@@ -49,7 +49,7 @@ function FormRegistro() {
         }
 
         // registrar devuelve "" si salió bien, o el motivo del error (ej: correo repetido)
-        const error = registrar(formulario);
+        const error = await registrar(formulario);
         if (error) {
             setMensaje(error);
             return;

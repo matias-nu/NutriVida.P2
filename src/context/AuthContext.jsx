@@ -1,58 +1,99 @@
 import { createContext, useContext, useState } from "react";
-import { buscarPorCredenciales, registrarUsuario } from "../services/usuarioService.js";
+import { peticion } from "../services/api.js";
 
 const AuthContext = createContext(null);
 
-const CLAVE_STORAGE = "nutrivida-usuario";
-
-
-function leerUsuarioGuardado() {
+function leerUsuario() {
     try {
-        const guardado = localStorage.getItem(CLAVE_STORAGE);
-        return guardado ? JSON.parse(guardado) : null;
+        const token = localStorage.getItem("nutrivida-token");
+        const datos = localStorage.getItem("nutrivida-usuario");
+        return token && datos ? JSON.parse(datos) : null;
     } catch {
         return null;
     }
 }
 
-export function AuthProvider({ children }) {
-    const [usuario, setUsuario] = useState(leerUsuarioGuardado);
+function normalizarUsuario(usuario) {
+    const roles = {
+        Administrador: "admin",
+        Nutricionista: "nutricionista",
+        Paciente: "paciente"
+    };
 
-    // Guarda la sesión (sin la contraseña) en el estado y en localStorage
-    function abrirSesion(datos) {
-        const { clave: _omitida, ...datosUsuario } = datos;
-        setUsuario(datosUsuario);
-        localStorage.setItem(CLAVE_STORAGE, JSON.stringify(datosUsuario));
+    return {
+        ...usuario,
+        rol: roles[usuario.rol] || usuario.rol
+    };
+}
+
+export function AuthProvider({ children }) {
+    const [usuario, setUsuario] = useState(leerUsuario);
+
+    function guardarSesion(datos) {
+        if (!datos.token || !datos.usuario) {
+            throw new Error("El servidor no entregó una sesión válida.");
+        }
+
+        const usuarioNormalizado = normalizarUsuario(datos.usuario);
+
+        localStorage.setItem("nutrivida-token", datos.token);
+        localStorage.setItem(
+            "nutrivida-usuario",
+            JSON.stringify(usuarioNormalizado)
+        );
+
+        setUsuario(usuarioNormalizado);
     }
 
-    // Devuelve true si el correo y la clave coinciden con algún usuario
-    function iniciarSesion(correo, clave) {
-        const encontrado = buscarPorCredenciales(correo, clave);
+    async function iniciarSesion(correo, clave) {
+        try {
+            const datos = await peticion("/auth/login", {
+                method: "POST",
+                body: JSON.stringify({
+                    correo: correo.trim().toLowerCase(),
+                    password: clave
+                })
+            });
 
-        if (!encontrado) {
+            guardarSesion(datos);
+            return true;
+        } catch (error) {
+            console.error("Error de inicio de sesión:", error.message);
             return false;
         }
-        abrirSesion(encontrado);
-        return true;
     }
 
-
-    function registrar(datos) {
+    async function registrar({ nombre, correo, clave }) {
         try {
-            abrirSesion(registrarUsuario(datos));
-            return "";
+            await peticion("/auth/registro", {
+                method: "POST",
+                body: JSON.stringify({
+                    nombre: nombre.trim(),
+                    correo: correo.trim().toLowerCase(),
+                    password: clave
+                })
+            });
+
+            const correcto = await iniciarSesion(correo, clave);
+
+            return correcto
+                ? ""
+                : "Cuenta creada, pero no se pudo iniciar sesión.";
         } catch (error) {
             return error.message;
         }
     }
 
     function cerrarSesion() {
+        localStorage.removeItem("nutrivida-token");
+        localStorage.removeItem("nutrivida-usuario");
         setUsuario(null);
-        localStorage.removeItem(CLAVE_STORAGE);
     }
 
     return (
-        <AuthContext.Provider value={{ usuario, iniciarSesion, registrar, cerrarSesion }}>
+        <AuthContext.Provider
+            value={{ usuario, iniciarSesion, registrar, cerrarSesion }}
+        >
             {children}
         </AuthContext.Provider>
     );
