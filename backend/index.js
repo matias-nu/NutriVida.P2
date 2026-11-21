@@ -4,6 +4,12 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+
+
 app.use('/api/v1/usuarios', require('./usuarios'));
 
 app.use('/api/v1/servicios', require('./servicios'));
@@ -20,8 +26,7 @@ app.use('/api/v1/auth', require('./auth'));
 
 const PORT = process.env.PORT || 3001;
 
-app.use(cors());
-app.use(express.json());
+
 
 app.get('/api', (req, res) => {
   res.json({

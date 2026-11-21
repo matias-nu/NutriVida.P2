@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { peticion } from "../services/api.js";
 
 const AuthContext = createContext(null);
@@ -28,6 +28,40 @@ function normalizarUsuario(usuario) {
 
 export function AuthProvider({ children }) {
     const [usuario, setUsuario] = useState(leerUsuario);
+
+    useEffect(() => {
+        const token = localStorage.getItem("nutrivida-token");
+
+        if (!token) return;
+
+        let activo = true;
+
+        peticion("/auth/perfil")
+            .then(datos => {
+                if (!activo) return;
+
+                const actualizado = normalizarUsuario(datos.usuario);
+
+                localStorage.setItem(
+                    "nutrivida-usuario",
+                    JSON.stringify(actualizado)
+                );
+
+                setUsuario(actualizado);
+            })
+            .catch(() => {
+                if (!activo) return;
+
+                localStorage.removeItem("nutrivida-token");
+                localStorage.removeItem("nutrivida-usuario");
+                setUsuario(null);
+            });
+
+        return () => {
+            activo = false;
+        };
+    }, []);
+
 
     function guardarSesion(datos) {
         if (!datos.token || !datos.usuario) {
