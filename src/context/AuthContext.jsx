@@ -27,12 +27,16 @@ function normalizarUsuario(usuario) {
 }
 
 export function AuthProvider({ children }) {
-    const [usuario, setUsuario] = useState(leerUsuario);
+    const [usuario, setUsuario] = useState(null);
+    const [verificandoSesion, setVerificandoSesion] = useState(true);
 
     useEffect(() => {
         const token = localStorage.getItem("nutrivida-token");
 
-        if (!token) return;
+        if (!token) {
+            setVerificandoSesion(false);
+            return;
+        }
 
         let activo = true;
 
@@ -55,6 +59,9 @@ export function AuthProvider({ children }) {
                 localStorage.removeItem("nutrivida-token");
                 localStorage.removeItem("nutrivida-usuario");
                 setUsuario(null);
+            })
+            .finally(() => {
+                if (activo) setVerificandoSesion(false);
             });
 
         return () => {
@@ -77,6 +84,7 @@ export function AuthProvider({ children }) {
         );
 
         setUsuario(usuarioNormalizado);
+        setVerificandoSesion(false);
     }
 
     async function iniciarSesion(correo, clave) {
@@ -126,7 +134,7 @@ export function AuthProvider({ children }) {
 
     return (
         <AuthContext.Provider
-            value={{ usuario, iniciarSesion, registrar, cerrarSesion }}
+            value={{ usuario, verificandoSesion, iniciarSesion, registrar, cerrarSesion }}
         >
             {children}
         </AuthContext.Provider>
