@@ -198,6 +198,14 @@ function FormAgenda() {
             return;
         }
 
+        if (formulario.correo.trim().toLowerCase() !== usuario.correo.toLowerCase()) {
+            setErrores({
+                general: "Debes utilizar el correo de tu cuenta para reservar."
+            });
+            setPaso("formulario");
+            return;
+        }
+
         setConfirmando(true);
 
         try {
