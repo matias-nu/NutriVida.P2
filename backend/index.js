@@ -16,6 +16,8 @@ app.use('/api/v1/citas', require('./citas'));
 
 require('./swagger')(app);
 
+app.use('/api/v1/auth', require('./auth'));
+
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
