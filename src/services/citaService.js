@@ -17,9 +17,9 @@ function adaptarCita(cita) {
         id: Number(cita.id),
         servicioId: String(cita.servicio_id),
         nutricionistaId: String(cita.nutricionista_id),
-        servicio: cita.servicio || "",
-        nutricionista: cita.nutricionista || "",
-        nombre: cita.paciente || "",
+        servicio: cita.servicio || cita.servicio_nombre || "",
+        nutricionista: cita.nutricionista || cita.nutricionista_nombre || "",
+        nombre: cita.paciente || cita.paciente_nombre || "",
         correo: cita.correo || "",
         fecha,
         hora,
@@ -44,7 +44,7 @@ export async function crearCita(datos) {
         })
     });
 
-    return respuesta.cita;
+    return respuesta.cita || respuesta;
 }
 
 export async function actualizarCita(id, cambios) {

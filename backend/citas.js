@@ -18,7 +18,12 @@ router.get('/', async (req, res) => {
       valores.push(id);
     }
     const { rows } = await db.query(`
-      SELECT c.*, p.nombre AS paciente_nombre,
+      SELECT c.id, c.paciente_id, c.nutricionista_id,
+             c.servicio_id,
+             TO_CHAR(c.fecha_hora, 'YYYY-MM-DD"T"HH24:MI:SS') AS fecha_hora,
+             c.estado, c.observaciones, c.fecha_creacion,
+             p.correo AS correo,
+             p.nombre AS paciente_nombre,
              n.nombre AS nutricionista_nombre,
              s.nombre AS servicio_nombre
       FROM citas c
