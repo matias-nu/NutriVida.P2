@@ -4,6 +4,16 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
+app.use('/api/v1/usuarios', require('./usuarios'));
+
+app.use('/api/v1/servicios', require('./servicios'));
+
+app.use('/api/v1/planes', require('./planes'));
+
+app.use('/api/v1/nutricionistas', require('./nutricionistas'));
+
+app.use('/api/v1/citas', require('./citas'));
+
 const PORT = process.env.PORT || 3001;
 
 app.use(cors());
