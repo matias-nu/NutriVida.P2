@@ -1,5 +1,5 @@
 // EtiquetaEstadoCita (átomo): estado de una cita. Prop: estado ('pendiente' | 'confirmada' | 'cancelada').
-const textos = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada' }
+const textos = { pendiente: 'Pendiente', confirmada: 'Confirmada', cancelada: 'Cancelada', completada: 'Completada' }
 
 function EtiquetaEstadoCita({ estado }) {
   return <span className={`etiqueta etiqueta-${estado}`}>{textos[estado] ?? 'Pendiente'}</span>

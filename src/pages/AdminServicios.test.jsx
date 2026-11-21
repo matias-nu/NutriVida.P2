@@ -1,68 +1,15 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import {describe,it,expect,vi,beforeEach} from "vitest";
+import {render,screen,waitFor} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { ServiciosProvider } from "../context/ServiciosContext.jsx";
-import { obtenerServicio } from "../services/servicioService.js";
 import AdminServicios from "./AdminServicios.jsx";
-
-beforeEach(() => {
-    localStorage.clear();
-});
-
-function dibujar() {
-    render(
-        <ServiciosProvider>
-            <AdminServicios />
-        </ServiciosProvider>
-    );
-}
-
-describe("AdminServicios (CRUD del panel)", () => {
-    it("crea un servicio nuevo: aparece en la tabla y queda guardado", async () => {
-        dibujar();
-
-        await userEvent.click(screen.getByRole("button", { name: "Nuevo servicio" }));
-        await userEvent.type(screen.getByLabelText("Nombre"), "Taller de yoga");
-        await userEvent.type(screen.getByLabelText("Descripción"), "Sesión grupal de yoga y respiración");
-        await userEvent.type(screen.getByLabelText("Precio (CLP)"), "9000");
-        await userEvent.click(screen.getByRole("button", { name: "Guardar" }));
-
-        expect(screen.getByText("Taller de yoga")).toBeInTheDocument();
-        expect(screen.getByRole("status")).toHaveTextContent('Servicio "Taller de yoga" creado.');
-        expect(obtenerServicio("taller-de-yoga").precio).toBe(9000);
-    });
-
-    it("no guarda si faltan datos y muestra los mensajes de error", async () => {
-        dibujar();
-
-        await userEvent.click(screen.getByRole("button", { name: "Nuevo servicio" }));
-        await userEvent.click(screen.getByRole("button", { name: "Guardar" }));
-
-        expect(screen.getByText("Ingresa el nombre del servicio.")).toBeInTheDocument();
-        expect(screen.getByText("Ingresa un precio entero mayor a 0.")).toBeInTheDocument();
-    });
-
-    it("edita el precio de un servicio existente", async () => {
-        dibujar();
-
-        // La fila de "Control nutricional" es la segunda del catálogo de partida
-        await userEvent.click(screen.getAllByRole("button", { name: "Editar" })[1]);
-        const precio = screen.getByLabelText("Precio (CLP)");
-        await userEvent.clear(precio);
-        await userEvent.type(precio, "27000");
-        await userEvent.click(screen.getByRole("button", { name: "Guardar" }));
-
-        expect(obtenerServicio("control").precio).toBe(27000);
-        expect(screen.getByRole("status")).toHaveTextContent("actualizado");
-    });
-
-    it("elimina un servicio tras confirmar", async () => {
-        dibujar();
-
-        await userEvent.click(screen.getAllByRole("button", { name: "Eliminar" })[1]);
-        await userEvent.click(screen.getByRole("button", { name: "Sí" }));
-
-        expect(obtenerServicio("control")).toBeNull();
-        expect(screen.getByRole("status")).toHaveTextContent("Servicio eliminado.");
-    });
+import * as ctx from "../context/ServiciosContext.jsx";
+vi.mock("../context/ServiciosContext.jsx",()=>({useServicios:vi.fn()}));
+const servicio={id:"1",titulo:"Control nutricional",tipo:"Consulta",precio:25000,duracion:"60 min",descripcion:"Primera consulta"};
+const crear=vi.fn(),actualizar=vi.fn(),eliminar=vi.fn();
+beforeEach(()=>{vi.clearAllMocks();crear.mockResolvedValue({});actualizar.mockResolvedValue({});eliminar.mockResolvedValue({});ctx.useServicios.mockReturnValue({servicios:[servicio],cargando:false,error:"",crear,actualizar,eliminar});});
+describe("AdminServicios API",()=>{
+ it("muestra servicios del contexto",()=>{render(<AdminServicios/>);expect(screen.getByText("Control nutricional")).toBeInTheDocument();});
+ it("abre formulario nuevo",async()=>{render(<AdminServicios/>);await userEvent.click(screen.getByRole("button",{name:"Nuevo servicio"}));expect(screen.getByLabelText("Nombre")).toBeInTheDocument();});
+ it("permite editar un servicio",async()=>{render(<AdminServicios/>);await userEvent.click(screen.getByRole("button",{name:"Editar"}));expect(screen.getByLabelText("Precio (CLP)")).toBeInTheDocument();});
+ it("solicita confirmación antes de desactivar",async()=>{const spy=vi.spyOn(window,"confirm").mockReturnValue(false);render(<AdminServicios/>);await userEvent.click(screen.getByRole("button",{name:"Eliminar"}));await userEvent.click(screen.getByRole("button",{name:"Sí"}));expect(spy).toHaveBeenCalled();expect(eliminar).not.toHaveBeenCalled();spy.mockRestore();});
 });

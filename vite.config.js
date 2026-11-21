@@ -4,6 +4,14 @@ import react from "@vitejs/plugin-react";
 // https://vitest.dev/config/
 export default defineConfig({
     plugins: [react()],
+    server: {
+        proxy: {
+            "/api": {
+                target: "http://127.0.0.1:3001",
+                changeOrigin: true
+            }
+        }
+    },
     test: {
         // Navegador simulado: jsdom entrega document, window, localStorage, etc.
         environment: "jsdom",

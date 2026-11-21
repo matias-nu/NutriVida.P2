@@ -15,7 +15,7 @@ function ListaCitasPaciente({ citas, onCancelar }) {
                     key={cita.id}
                     cita={cita}
                     acciones={
-                        cita.estado !== "cancelada" && (
+                        !["cancelada", "completada"].includes(cita.estado) && (
                             <Boton onClick={() => onCancelar(cita.id)}>Cancelar</Boton>
                         )
                     }
