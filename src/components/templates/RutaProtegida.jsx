@@ -2,7 +2,9 @@ import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 
 function RutaProtegida({ roles, children }) {
-    const { usuario } = useAuth();
+    const { usuario, verificandoSesion } = useAuth();
+
+    if (verificandoSesion) return null;
     const ubicacion = useLocation();
 
     if (!usuario) {
