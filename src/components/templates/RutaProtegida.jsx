@@ -4,8 +4,9 @@ import { useAuth } from "../../context/AuthContext.jsx";
 function RutaProtegida({ roles, children }) {
     const { usuario, verificandoSesion } = useAuth();
 
-    if (verificandoSesion) return null;
     const ubicacion = useLocation();
+
+    if (verificandoSesion) return null;
 
     if (!usuario) {
         return <Navigate to="/login" replace state={{ desde: ubicacion.pathname }} />;
